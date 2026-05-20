@@ -1,0 +1,262 @@
+
+---
+skill: seo
+version: 1.0.0
+trigger:
+  - "perform seo analysis"
+  - "run seo audit"
+  - "analyze seo"
+  - "check technical seo"
+  - "review schema"
+  - "core web vitals"
+  - "e-e-a-t"
+  - "hreflang"
+  - "geo"
+  - "aeo"
+  - "github repository seo"
+description: >
+  Deterministic LLM-first SEO audits for websites, blog posts, and GitHub
+  repositories. Use this when the user asks to "perform SEO analysis", "run SEO
+  audit", "analyze SEO", "check technical SEO", "review schema", "Core Web
+  Vitals", "E-E-A-T", "hreflang", "GEO", "AEO", or GitHub repository SEO
+  optimization. For full/page/repo audits, run bundled scripts for evidence and
+  return prioritized, confidence-labeled fixes.
+dependencies:
+  python: ">=3.8"
+  pip:
+    - requests
+    - beautifulsoup4
+  optional:
+    - playwright  # for screenshot/visual analysis scripts
+---
+
+# SEO Skill (Agentic / Claude / Codex)
+
+LLM-first SEO analysis skill with 16 specialized sub-skills, 10 specialist
+agents, and 89 scripts for website, blog, and GitHub repository optimization.
+
+## Deterministic Trigger Mapping
+
+- `perform seo analysis on <url>` → single-URL full audit
+- No explicit sub-skill → full/page audit with LLM-first reasoning + script evidence
+- Full/page audits always produce:
+  - `FULL-AUDIT-REPORT.md`
+  - `ACTION-PLAN.md`
+- If `generate_report.py` is run → also return saved HTML path (`SEO-REPORT.html`)
+
+## Available Commands
+
+| Command                      | Sub-Skill              | Description                                              |
+|------------------------------|------------------------|----------------------------------------------------------|
+| `seo audit <url>`            | seo-audit              | Full website audit with scoring                          |
+| `seo page <url>`             | seo-page               | Deep single-page analysis                                |
+| `seo technical <url>`        | seo-technical          | Technical SEO checks                                     |
+| `seo content <url>`          | seo-content            | Content quality & E-E-A-T                                |
+| `seo schema <url>`           | seo-schema             | Schema detection/validation/generation                   |
+| `seo sitemap <url>`          | seo-sitemap            | Sitemap analysis & generation                            |
+| `seo images <url>`           | seo-images             | Image optimization audit                                 |
+| `seo geo <url>`              | seo-geo                | AI search optimization (GEO)                             |
+| `seo programmatic <url>`     | seo-programmatic       | Programmatic SEO safeguards                              |
+| `seo competitors <url>`      | seo-competitor-pages   | Comparison/alternatives pages                            |
+| `seo hreflang <url>`         | seo-hreflang           | International SEO validation                             |
+| `seo plan <url>`             | seo-plan               | Strategic SEO planning                                   |
+| `seo github <repo_or_url>`   | seo-github             | GitHub repo discoverability, README, topics, health      |
+| `seo article <url>`          | seo-article            | Article data extraction & LLM optimization               |
+| `seo links <url>`            | seo-links              | External backlink profile & link health                  |
+| `seo aeo <url>`              | seo-aeo                | Answer Engine Optimization (Snippets, PAA, Knowledge)    |
+
+---
+
+## Orchestration Logic
+
+### Step 1 — Identify the Task
+
+- **Full audit**: crawl multiple pages, delegate to agents, score and report
+- **Single page**: deep dive on one URL
+- **Specific area**: run the matching sub-skill
+- **Strategic plan**: detect industry, load matching template
+- **GitHub repo SEO**: use GitHub scripts with `--provider auto`
+- **Generic `perform seo analysis on <url>`**: treat as single-page full audit
+
+### Step 2 — Collect Evidence
+
+**Primary method (LLM-first)**:
+```
+read_url_content(url)  →  returns parsed HTML content directly
+```
+
+**Deterministic verification (when script execution is available)**:
+```bash
+# Fetch/parse raw HTML
+python3 <SKILL_DIR>/scripts/fetch_page.py <url> --output /tmp/page.html
+python3 <SKILL_DIR>/scripts/parse_html.py /tmp/page.html --url <url> --json
+
+# Optional: generate HTML dashboard artifact
+python3 <SKILL_DIR>/scripts/generate_report.py <url> --output SEO-REPORT.html
+```
+
+> Do not use third-party mirrors as primary evidence when direct fetch or
+> bundled scripts are available.
+> `<SKILL_DIR>` = absolute path to the folder containing this SKILL.md.
+
+### Step 3 — Perform LLM-First Analysis
+
+1. Synthesize evidence from page content, metadata, and optional script outputs
+2. Produce findings with explicit proof:
+   - `Finding`
+   - `Evidence` (specific element, metric, or snippet)
+   - `Impact` (why it matters for ranking/indexing/UX)
+   - `Fix` (clear implementation step)
+3. Prioritize by impact and implementation effort
+4. Separate confirmed issues, likely issues, and unknowns
+
+Apply `resources/references/llm-audit-rubric.md` for consistent scoring.
+
+### Step 4 — Run Baseline Verification Scripts
+
+```bash
+python3 <SKILL_DIR>/scripts/robots_checker.py <url>
+python3 <SKILL_DIR>/scripts/llms_txt_checker.py <url>
+python3 <SKILL_DIR>/scripts/pagespeed.py <url> --strategy mobile
+python3 <SKILL_DIR>/scripts/security_headers.py <url>
+python3 <SKILL_DIR>/scripts/broken_links.py <url> --workers 5
+python3 <SKILL_DIR>/scripts/redirect_checker.py <url>
+python3 <SKILL_DIR>/scripts/readability.py /tmp/page.html --json
+python3 <SKILL_DIR>/scripts/social_meta.py <url>
+python3 <SKILL_DIR>/scripts/internal_links.py <url> --depth 1 --max-pages 20
+python3 <SKILL_DIR>/scripts/article_seo.py <url> --keyword "<target_keyword>" --json
+
+# GitHub repository SEO
+python3 <SKILL_DIR>/scripts/github_repo_audit.py --repo <owner/repo> --provider auto --json
+python3 <SKILL_DIR>/scripts/github_readme_lint.py README.md --json
+python3 <SKILL_DIR>/scripts/github_community_health.py --repo <owner/repo> --provider auto --json
+python3 <SKILL_DIR>/scripts/github_search_benchmark.py --repo <owner/repo> --query "<query>" --provider auto --json
+python3 <SKILL_DIR>/scripts/github_competitor_research.py --repo <owner/repo> --query "<query>" --provider auto --top-n 6 --json
+python3 <SKILL_DIR>/scripts/github_traffic_archiver.py --repo <owner/repo> --provider auto --archive-dir .github-seo-data --json
+```
+
+### Step 5 — Score and Report
+
+#### Default Scoring Weights (Full Audit)
+
+| Category                  | Weight |
+|---------------------------|--------|
+| Technical SEO             | 25%    |
+| Content Quality           | 20%    |
+| On-Page SEO               | 15%    |
+| Schema / Structured Data  | 15%    |
+| Performance (CWV)         | 10%    |
+| Image Optimization        | 10%    |
+| AI Search Readiness (GEO) | 5%     |
+
+#### Score Interpretation
+
+| Score   | Rating             |
+|---------|--------------------|
+| 90–100  | Excellent          |
+| 70–89   | Good               |
+| 50–69   | Needs Improvement  |
+| 30–49   | Poor               |
+| 0–29    | Critical           |
+
+### Step 6 — Mandatory Deliverables
+
+For `seo audit`, `seo page`, and generic `perform seo analysis on <url>` flows:
+
+1. Create `FULL-AUDIT-REPORT.md` at the start; update as evidence is collected
+2. Create `ACTION-PLAN.md` at the start; update with prioritized fixes
+3. If HTML dashboard generated, include its exact saved path
+4. In the final response, list all generated artifacts and paths
+5. If technical checks are blocked by environment limits, still write both
+   markdown files and include an "Environment Limitations" section
+
+---
+
+## Industry Detection (for `seo plan`)
+
+| Industry              | Template File        |
+|-----------------------|----------------------|
+| SaaS / Software       | saas.md              |
+| Local Service Business| local-service.md     |
+| E-commerce / Retail   | ecommerce.md         |
+| Publisher / Media     | publisher.md         |
+| Agency / Consultancy  | agency.md            |
+| Other / Generic       | generic.md           |
+
+**Detection signals:**
+- SaaS: pricing page, feature pages, /docs, /api, trial/demo CTAs
+- Local: address, phone, Google Business Profile, service area pages
+- E-commerce: product pages, cart, checkout, /collections, /categories
+- Publisher: article dates, author pages, /news, high content volume
+- Agency: case studies, /work, /portfolio, team pages, service offerings
+
+---
+
+## Schema Templates
+
+Pre-built JSON-LD templates available for:
+- **Common**: BlogPosting, Article, Organization, LocalBusiness, BreadcrumbList, WebSite
+- **Video**: VideoObject, BroadcastEvent, Clip, SeekToAction
+- **E-commerce**: ProductGroup (variants), OfferShippingDetails, Certification
+- **Other**: SoftwareSourceCode, ProfilePage (E-E-A-T author pages)
+
+---
+
+## Validation Scripts
+
+```bash
+# Pre-commit SEO check (CI/CD integration)
+bash <SKILL_DIR>/scripts/pre_commit_seo_check.sh
+
+# Schema validator
+python3 <SKILL_DIR>/scripts/validate_schema.py <file_path>
+
+# Skill inventory validator
+python3 <SKILL_DIR>/scripts/validate_skill_inventory.py
+
+# Reference freshness validator
+python3 <SKILL_DIR>/scripts/reference_freshness.py <SKILL_DIR>/resources/references --max-age-days 90
+```
+
+---
+
+## Output Format
+
+Severity levels used in all reports:
+- 🔴 **Critical** — Directly impacts rankings or indexing (fix immediately)
+- ⚠️  **Warning** — Optimization opportunity (fix within 1 month)
+- ✅ **Pass** — Meets or exceeds standards
+- ℹ️  **Info** — Not applicable or informational only
+
+Report structure:
+1. Summary table (element, value, severity)
+2. Detailed findings grouped by category
+3. Actionable recommendations ordered by impact
+
+---
+
+## Critical Rules
+
+1. **INP not FID** — FID was removed September 9, 2024. Use INP (Interaction to Next Paint). Never reference FID.
+2. **FAQ schema is restricted** — FAQPage schema limited to government/healthcare authority sites only (August 2023). Do NOT recommend for commercial sites.
+3. **HowTo schema is deprecated** — Rich results fully removed September 2023. Never recommend.
+4. **JSON-LD only** — Always use `<script type="application/ld+json">`. Never recommend Microdata or RDFa.
+5. **E-E-A-T everywhere** — As of December 2025, E-E-A-T applies to ALL competitive queries, not just YMYL.
+6. **Mobile-first is complete** — 100% mobile-first indexing since July 5, 2024.
+7. **Location page limits** — Warning at 30+ pages, hard stop at 50+ pages. Enforce unique content requirements.
+8. **AI crawler management** — Check robots.txt for GPTBot, ClaudeBot, PerplexityBot, Applebot-Extended, Google-Extended, Bytespider, CCBot.
+9. **LLM-first, resilient pipeline** — Start with `read_url_content`, then run relevant scripts. If any script fails, still produce a complete analysis (confidence: `Likely`). Never block a report on a single script failure.
+10. **Always produce file artifacts** — `FULL-AUDIT-REPORT.md` and `ACTION-PLAN.md` are required outputs for full/page audit requests.
+11. **Bound evidence retries** — If core checks fail due to DNS/network, finalize promptly with confidence labels.
+12. **Avoid redundant web fallbacks** — If direct fetch/scripts fail and one fallback also fails, stop retrying and finish with explicit limitations.
+13. **Signal freshness tracking** — Every reference file should have a `<!-- Updated: YYYY-MM-DD -->` comment. Flag files older than 90 days. When Google announces algorithm changes, verify affected reference files within 7 days.
+
+---
+
+## Install Script Dependencies
+
+```bash
+pip install requests beautifulsoup4
+# Optional for screenshot/visual analysis:
+pip install playwright && playwright install chromium
+```
